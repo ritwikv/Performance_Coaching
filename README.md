@@ -1,37 +1,74 @@
 # Call Transcript Data Extractor
 
-This Python script extracts data from JSON files containing call transcripts, specifically designed to separate Customer questions from CSR (Customer Service Representative) answers.
+This repository contains Python scripts to extract and analyze data from JSON files containing call transcripts. The scripts separate Customer questions from CSR (Customer Service Representative) answers and provide both JSON and DataFrame outputs for analysis.
 
-## Features
+## 🚀 Available Scripts
 
+### 1. `extract_call_data.py` - JSON Output
+Basic extraction script that outputs to JSON format.
+
+### 2. `extract_call_data_dataframe.py` - DataFrame Output ⭐ **NEW**
+Advanced script that creates pandas DataFrame with one-to-one Question-Answer mapping.
+
+### 3. `demo_dataframe_usage.py` - Analysis Examples
+Demonstrates various ways to analyze the DataFrame data.
+
+## ✨ Features
+
+### Basic Features (Both Scripts)
 - ✅ Extracts data from the `call_transcript` tag in JSON files
 - ✅ Separates Customer data into "Questions" 
 - ✅ Separates CSR/Supervisor data into "Answers"
 - ✅ Preserves call metadata (Call ID, CSR ID, Date, Time)
-- ✅ Provides detailed console output
-- ✅ Saves extracted data to a new JSON file
-- ✅ Error handling for file operations
+- ✅ Comprehensive error handling
 
-## Usage
+### DataFrame-Specific Features ⭐
+- ✅ **One-to-one Question-Answer mapping** in pandas DataFrame
+- ✅ **Metadata as separate columns** (call_ID, CSR_ID, call_date, call_time)
+- ✅ **Interaction sequence numbering**
+- ✅ **CSV and Excel export** capabilities
+- ✅ **Advanced analysis functions**
+- ✅ **Text length analysis**
+- ✅ **Pattern detection** (unanswered questions, CSR-initiated responses)
 
-### Basic Usage
+## 📖 Usage
+
+### DataFrame Version (Recommended) ⭐
 
 ```python
+# Basic usage - creates CSV and Excel files
+python extract_call_data_dataframe.py
+
+# Run analysis demo
+python demo_dataframe_usage.py
+```
+
+### JSON Version
+
+```python
+# Basic usage - creates JSON output
 python extract_call_data.py
 ```
 
-This will process the default file `"Call Transcript Sample 1.json"` and create `"extracted_call_data.json"`.
-
-### Using as a Module
+### Using as Modules
 
 ```python
-from extract_call_data import extract_call_transcript_data, save_extracted_data
+# DataFrame version
+from extract_call_data_dataframe import extract_call_transcript_to_dataframe
+df = extract_call_transcript_to_dataframe("your_file.json")
 
-# Extract data from your JSON file
+# JSON version  
+from extract_call_data import extract_call_transcript_data
 data = extract_call_transcript_data("your_file.json")
+```
 
-# Save to output file
-save_extracted_data(data, "output.json")
+### Requirements
+
+```bash
+# For DataFrame version
+pip install pandas openpyxl
+
+# JSON version has no external dependencies
 ```
 
 ## Input Format
@@ -53,9 +90,27 @@ The script expects a JSON file with the following structure:
 }
 ```
 
-## Output Format
+## 📊 Output Formats
 
-The script generates a JSON file with separated questions and answers:
+### DataFrame Output (CSV/Excel) ⭐
+
+The DataFrame version creates a structured table with one-to-one Question-Answer mapping:
+
+| interaction_id | Questions | Answers | call_ID | CSR_ID | call_date | call_time |
+|----------------|-----------|---------|---------|--------|-----------|-----------|
+| 1 | Customer question 1 | CSR answer 1 | 12345 | JaneDoe123 | 2024-02-01 | 02:16:43 |
+| 2 | Customer question 2 | CSR answer 2 | 12345 | JaneDoe123 | 2024-02-01 | 02:16:43 |
+| ... | ... | ... | ... | ... | ... | ... |
+
+**Key Benefits:**
+- ✅ Perfect for data analysis and machine learning
+- ✅ Easy to filter, sort, and analyze
+- ✅ Metadata in separate columns for easy grouping
+- ✅ Handles mismatched question/answer counts gracefully
+
+### JSON Output
+
+The JSON version generates a file with separated questions and answers:
 
 ```json
 {
@@ -145,4 +200,3 @@ EXTRACTION COMPLETE!
 - Customer entries are treated as questions
 - All prefixes ("Customer:", "CSR:", "Supervisor:") are automatically removed
 - Metadata from the original JSON is preserved in the output
-
