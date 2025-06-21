@@ -22,6 +22,15 @@ Automated setup script for Mistral evaluator dependencies and configuration.
 ### 6. `mistral_usage_guide.py` - Usage Examples
 Comprehensive examples and usage patterns for the Mistral evaluator.
 
+### 7. `streamlit_feedback_dashboard.py` - Interactive Frontend 🎨 **NEW**
+Professional Streamlit dashboard for visualizing call center performance feedback and coaching insights.
+
+### 8. `launch_dashboard.py` - Dashboard Launcher
+Easy-to-use launcher script with automated setup and requirement checking.
+
+### 9. `demo_dashboard.py` - Demo Data Generator
+Creates sample data for testing the dashboard functionality.
+
 ## ✨ Features
 
 ### Basic Features (Both Scripts)
@@ -50,6 +59,16 @@ Comprehensive examples and usage patterns for the Mistral evaluator.
 - ✅ **Sentiment Analysis** - Emotional tone assessment with coaching feedback
 - ✅ **Topic Summarization** - Automatic categorization of customer questions
 - ✅ **Comprehensive Coaching Reports** - Personalized feedback in conversational format
+
+### Interactive Dashboard Features 🎨 **NEW**
+- ✅ **Streamlit Web Interface** - Professional, responsive dashboard
+- ✅ **CSR-Specific Feedback** - Filter and view feedback by CSR_ID
+- ✅ **Interactive Visualizations** - Performance trends, score distributions, and RAGAS metrics
+- ✅ **Real-time Data Loading** - Dynamic data refresh and file upload capabilities
+- ✅ **Performance Analytics** - Comprehensive charts and insights
+- ✅ **Coaching Report Viewer** - Organized feedback display with tabbed interface
+- ✅ **Export Capabilities** - Download reports and data in multiple formats
+- ✅ **Responsive Design** - Works on desktop, tablet, and mobile devices
 
 ## 📖 Usage
 
@@ -101,6 +120,22 @@ python mistral_transcript_evaluator.py
 python mistral_usage_guide.py
 ```
 
+### Interactive Dashboard (Streamlit) 🎨 **NEW**
+
+```bash
+# Install dashboard requirements
+pip install -r requirements_streamlit.txt
+
+# Quick start with demo data
+python demo_dashboard.py
+
+# Launch dashboard (automated)
+python launch_dashboard.py
+
+# Or launch manually
+streamlit run streamlit_feedback_dashboard.py
+```
+
 ### Requirements
 
 ```bash
@@ -109,6 +144,9 @@ pip install pandas openpyxl
 
 # For AI evaluation
 pip install -r requirements_mistral.txt
+
+# For Streamlit dashboard
+pip install -r requirements_streamlit.txt
 
 # JSON version has no external dependencies
 ```
@@ -359,3 +397,149 @@ Evaluates responses using industry-standard metrics:
 - ✅ **No Data Upload**: Transcripts never leave your environment
 - ✅ **GDPR Compliant**: Complete data privacy control
 - ✅ **Offline Capable**: Works without internet connection
+
+## 🎨 Interactive Streamlit Dashboard
+
+### Overview
+The Streamlit dashboard provides a professional web interface for visualizing call center performance data and coaching insights. It integrates seamlessly with the Mistral evaluation system to provide real-time feedback visualization.
+
+### Key Dashboard Features
+
+#### 1. **CSR-Specific Feedback Filtering** 👤
+- **Dynamic CSR Selection**: Choose specific CSR or view all CSRs
+- **Real-time Filtering**: Instant data filtering by CSR_ID
+- **Performance Comparison**: Compare performance across different CSRs
+- **Individual Coaching**: Personalized feedback for each agent
+
+#### 2. **Interactive Performance Visualizations** 📊
+- **Performance Trends**: Line charts showing score progression over time
+- **RAGAS Radar Charts**: Visual representation of quality metrics
+- **Score Distribution**: Histograms showing performance patterns
+- **Comparative Analytics**: Side-by-side performance comparisons
+
+#### 3. **Comprehensive Feedback Display** 💬
+- **Tabbed Interface**: Organized feedback by category (English, Communication, Sentiment, etc.)
+- **Color-coded Scores**: Visual indicators for performance levels
+- **Detailed Coaching**: Full coaching feedback with actionable recommendations
+- **Interaction Context**: Question-answer pairs with evaluation context
+
+#### 4. **Real-time Data Management** 🔄
+- **Dynamic Loading**: Automatic data refresh capabilities
+- **File Upload**: Upload new transcript files directly through the interface
+- **Data Validation**: Automatic checking for required data files
+- **Status Indicators**: Clear indication of data availability and processing status
+
+#### 5. **Professional UI/UX** ✨
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Custom Styling**: Professional color scheme and typography
+- **Intuitive Navigation**: Easy-to-use sidebar controls and main content area
+- **Performance Badges**: Visual indicators for different performance levels
+
+### Dashboard Sections
+
+#### 📊 **Performance Overview**
+- High-level metrics and KPIs
+- Overall performance summary
+- Team-wide statistics
+- Completion rates and evaluation status
+
+#### 👤 **Individual CSR Feedback**
+- Detailed feedback for selected CSR
+- Interaction-by-interaction breakdown
+- Performance trends and patterns
+- Specific coaching recommendations
+
+#### 📈 **Analytics & Insights**
+- Advanced performance analytics
+- Trend analysis and patterns
+- Score distributions and comparisons
+- RAGAS metrics visualization
+
+#### 💬 **Coaching Reports**
+- Comprehensive coaching feedback
+- Actionable improvement recommendations
+- Strengths and development areas
+- Training priorities and focus areas
+
+### Sample Dashboard Views
+
+#### CSR Selection Interface
+```
+👤 Select CSR for Feedback
+┌─────────────────────────────────────┐
+│ Choose CSR ID: [JaneDoe123     ▼]   │
+│ ☑ Show Interaction Details          │
+│ ☑ Auto Refresh                      │
+└─────────────────────────────────────┘
+```
+
+#### Performance Metrics Display
+```
+📊 Performance Summary
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│ 📝 English  │ 🎯 Clarity  │ 🗣️ Speech   │ 📊 Total    │
+│ 8.5/10      │ 7.8/10      │ 9.2/10      │ 5 Evals     │
+│ Excellent   │ Good        │ Excellent   │ Completed   │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+```
+
+#### Coaching Feedback Cards
+```
+💬 Coaching Feedback
+┌─────────────────────────────────────────────────────────┐
+│ 🎯 Overall | 📝 English | 🗣️ Communication | 😊 Sentiment │
+├─────────────────────────────────────────────────────────┤
+│ Your faithfulness score of 0.92 is excellent! You      │
+│ provided accurate information and addressed all the     │
+│ customer's concerns effectively.                        │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Getting Started with the Dashboard
+
+#### Quick Start (with Demo Data)
+```bash
+# 1. Generate demo data
+python demo_dashboard.py
+
+# 2. Copy demo files
+cp demo_evaluation_results.json transcript_evaluation_results.json
+cp demo_call_transcript.json "Call Transcript Sample 1.json"
+
+# 3. Launch dashboard
+python launch_dashboard.py
+```
+
+#### Production Setup
+```bash
+# 1. Run Mistral evaluation first
+python mistral_transcript_evaluator.py
+
+# 2. Launch dashboard
+streamlit run streamlit_feedback_dashboard.py
+```
+
+### Dashboard Configuration
+
+The dashboard is highly configurable through `dashboard_config.py`:
+
+- **Color Schemes**: Customize colors and themes
+- **Score Thresholds**: Adjust performance level boundaries
+- **Metrics Display**: Configure which metrics to show
+- **Chart Settings**: Customize visualization appearance
+- **UI Elements**: Modify layout and styling options
+
+### Browser Compatibility
+
+- ✅ **Chrome/Chromium**: Full support
+- ✅ **Firefox**: Full support  
+- ✅ **Safari**: Full support
+- ✅ **Edge**: Full support
+- ✅ **Mobile Browsers**: Responsive design support
+
+### Performance Considerations
+
+- **Data Size**: Optimized for datasets up to 10,000 interactions
+- **Loading Speed**: Efficient data caching and lazy loading
+- **Memory Usage**: Minimal memory footprint with data streaming
+- **Responsiveness**: Real-time updates without page refresh
