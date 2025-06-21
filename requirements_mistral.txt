@@ -6,9 +6,9 @@ openpyxl>=3.1.0
 # Mistral/LLaMA model support
 llama-cpp-python>=0.2.0
 
-# RAGAS evaluation framework
-ragas>=0.1.0
-datasets>=2.14.0
+# RAGAS evaluation framework (using local implementation to avoid OpenAI API calls)
+# ragas>=0.1.0  # Commented out - using local Mistral-based implementation instead
+datasets>=2.14.0  # Still needed for data handling
 
 # Sentiment analysis
 textblob>=0.17.1
@@ -26,4 +26,3 @@ spacy>=3.6.0
 jupyter>=1.0.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
-

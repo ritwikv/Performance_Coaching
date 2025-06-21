@@ -55,7 +55,7 @@ Creates sample data for testing the dashboard functionality.
 - ✅ **Sentence Structure Analysis** - Identifies long sentences and recommends crisp communication
 - ✅ **Crutch Word Detection** - Identifies and provides coaching on filler words
 - ✅ **Knowledge Document Creation** - Automatically generates knowledge base from transcripts
-- ✅ **RAGAS Framework Evaluation** - Context Precision, Recall, Relevancy, and Faithfulness metrics
+- ✅ **Local RAGAS-Style Evaluation** - Context Precision, Recall, Relevancy, and Faithfulness metrics (no external API calls)
 - ✅ **Sentiment Analysis** - Emotional tone assessment with coaching feedback
 - ✅ **Topic Summarization** - Automatic categorization of customer questions
 - ✅ **Comprehensive Coaching Reports** - Personalized feedback in conversational format
@@ -312,8 +312,8 @@ The Mistral 7B evaluator provides comprehensive AI-powered analysis of call cent
 - **Best Practices**: Identifies successful resolution patterns
 - **Reference Material**: Generates searchable knowledge articles
 
-#### 5. **RAGAS Framework Evaluation** 📊
-Evaluates responses using industry-standard metrics:
+#### 5. **Local RAGAS-Style Evaluation** 📊
+Evaluates responses using industry-standard metrics (all processed locally with Mistral 7B):
 
 - **Context Precision** (0.0-1.0): How relevant is the provided information?
 - **Context Recall** (0.0-1.0): How complete is the information coverage?
@@ -470,7 +470,7 @@ The Streamlit dashboard provides a professional web interface for visualizing ca
 │ Choose CSR ID: [JaneDoe123     ▼]   │
 │ ☑ Show Interaction Details          │
 │ ☑ Auto Refresh                      │
-└─────────────────────────────────────┘
+└─────────────────────��────────���──────┘
 ```
 
 #### Performance Metrics Display
@@ -488,7 +488,7 @@ The Streamlit dashboard provides a professional web interface for visualizing ca
 💬 Coaching Feedback
 ┌─────────────────────────────────────────────────────────┐
 │ 🎯 Overall | 📝 English | 🗣️ Communication | 😊 Sentiment │
-├─────────────────────────────────────────────────────────┤
+��──────────���──────────────────────────────────────────────┤
 │ Your faithfulness score of 0.92 is excellent! You      │
 │ provided accurate information and addressed all the     │
 │ customer's concerns effectively.                        │
