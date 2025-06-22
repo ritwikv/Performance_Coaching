@@ -1,0 +1,36 @@
+# Requirements for Call Center Transcript Evaluator
+# ================================================
+
+# Core data processing
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Local LLM support (Mistral 7B)
+llama-cpp-python>=0.2.0
+
+# Text processing and sentiment analysis
+textblob>=0.17.1
+nltk>=3.8
+
+# RAGAS framework (commented in code for later use)
+# ragas>=0.1.0
+
+# Utility libraries
+pathlib2>=2.3.7
+python-dateutil>=2.8.2
+
+# Optional: For enhanced text processing
+spacy>=3.4.0
+# python -m spacy download en_core_web_sm
+
+# Optional: For advanced NLP features
+transformers>=4.21.0
+torch>=1.12.0
+
+# Development and testing
+pytest>=7.0.0
+jupyter>=1.0.0
+
+# Note: Install llama-cpp-python with specific options for CPU-only usage:
+# pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
