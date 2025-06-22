@@ -1,10 +1,6 @@
 """
 Mistral 7B Call Center Transcript Evaluator
 Comprehensive evaluation system for call center performance coaching
-
-IMPORTANT: This implementation uses LOCAL Mistral 7B model for ALL evaluations,
-including RAGAS-style metrics, to avoid any external API calls (OpenAI, etc.).
-All processing happens locally for complete privacy and control.
 """
 
 import pandas as pd
@@ -25,10 +21,18 @@ except ImportError:
     exit(1)
 
 try:
+    from ragas import evaluate
+    from ragas.metrics import (
+        context_precision,
+        context_recall, 
+        context_entity_recall,
+        answer_relevancy,
+        faithfulness
+    )
     from datasets import Dataset
-    print("✅ Datasets imported successfully")
+    print("✅ RAGAS imported successfully")
 except ImportError:
-    print("❌ Please install datasets: pip install datasets")
+    print("❌ Please install ragas: pip install ragas datasets")
     exit(1)
 
 try:
@@ -486,8 +490,7 @@ class MistralTranscriptEvaluator:
         
         Format as encouraging, constructive coaching feedback. [/INST]"""
         
-        return self.generate_response(prompt, max_tokens=400)
-    
+        return self.generate_response(prompt, max_tokens=400)    
     def analyze_sentiment(self, text: str) -> Dict[str, Any]:
         """
         Analyze sentiment and provide feedback
@@ -596,7 +599,7 @@ class MistralTranscriptEvaluator:
             repetition_eval = self.detect_repetition_and_crutch_words(answer)
             results['repetition_analysis'] = repetition_eval
             
-            # 4. Local RAGAS evaluation (if knowledge documents exist)
+            # 4. RAGAS evaluation (if knowledge documents exist)
             if self.knowledge_documents and not pd.isna(question):
                 ragas_scores = self.evaluate_with_ragas_local(question, answer, self.knowledge_documents)
                 results['ragas_scores'] = ragas_scores
@@ -706,7 +709,8 @@ def main():
     Main function to demonstrate the evaluator
     """
     # Configuration
-    MODEL_PATH = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"  # Update this path
+    MODEL_PATH = r"Model\mistral-7b-instruct-v0.2.Q4_K_M.gguf"
+
     
     print("🎯 Mistral 7B Call Center Transcript Evaluator")
     print("=" * 60)
@@ -719,7 +723,7 @@ def main():
         print("📂 Loading transcript data...")
         try:
             from extract_call_data_dataframe import extract_call_transcript_to_dataframe
-            df = extract_call_transcript_to_dataframe("Call Transcript Sample 1.json")
+            df = extract_call_transcript_to_dataframe("Transcripts_Data\Call Transcript Sample 1.json")
             
             if df is None:
                 print("❌ Failed to load transcript data")

@@ -456,7 +456,7 @@ def main():
         st.subheader("🤖 AI Evaluation")
         
         if st.button("🚀 Run Mistral Evaluation"):
-            if os.path.exists("mistral-7b-instruct-v0.2.Q4_K_M.gguf"):
+            if os.path.exists("Model\mistral-7b-instruct-v0.2.Q4_K_M.gguf"):
                 st.info("Starting Mistral evaluation... This may take several minutes.")
                 st.code("python mistral_transcript_evaluator.py")
                 st.info("Please run the above command in your terminal to start evaluation.")
