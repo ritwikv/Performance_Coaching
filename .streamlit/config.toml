@@ -1,0 +1,46 @@
+[global]
+# Global configuration for Streamlit app
+
+# Development mode settings
+developmentMode = false
+showWarningOnDirectExecution = false
+
+[server]
+# Server configuration
+port = 8501
+enableCORS = false
+enableXsrfProtection = true
+maxUploadSize = 200
+maxMessageSize = 200
+enableWebsocketCompression = false
+
+[browser]
+# Browser configuration
+gatherUsageStats = false
+showErrorDetails = true
+
+[theme]
+# Theme configuration
+primaryColor = "#1f77b4"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+
+[client]
+# Client configuration
+caching = true
+displayEnabled = true
+showErrorDetails = true
+
+[runner]
+# Runner configuration
+magicEnabled = true
+installTracer = false
+fixMatplotlib = true
+
+[logger]
+# Logging configuration
+level = "info"
+messageFormat = "%(asctime)s %(message)s"
+

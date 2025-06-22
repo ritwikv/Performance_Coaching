@@ -1,0 +1,46 @@
+# Requirements for Streamlit Call Center Transcript Evaluator Frontend
+# =====================================================================
+
+# Core Streamlit and web framework
+streamlit>=1.28.0
+streamlit-option-menu>=0.3.6
+
+# Data visualization and plotting
+plotly>=5.15.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Data processing (from main requirements)
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Local LLM support (Mistral 7B)
+llama-cpp-python>=0.2.0
+
+# Text processing and sentiment analysis
+textblob>=0.17.1
+nltk>=3.8
+
+# Utility libraries
+pathlib2>=2.3.7
+python-dateutil>=2.8.2
+
+# File handling and encoding
+chardet>=5.0.0
+
+# Optional: Enhanced UI components
+streamlit-aggrid>=0.3.4
+streamlit-elements>=0.1.0
+streamlit-plotly-events>=0.0.6
+
+# Development and testing
+pytest>=7.0.0
+
+# Note: Make sure to also install the main requirements:
+# pip install -r requirements.txt
+
+# Installation order:
+# 1. pip install -r requirements.txt
+# 2. pip install -r requirements_streamlit.txt
+# 3. pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
