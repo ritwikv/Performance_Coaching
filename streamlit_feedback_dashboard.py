@@ -8,22 +8,24 @@ from datetime import datetime
 def run_mistral_evaluation():
     """Execute the mistral_transcript_evaluator.py script and return the result."""
     try:
-        # Show a spinner while the evaluation is running
-        with st.spinner('Running Mistral Evaluation...'):
-            # Run the mistral_transcript_evaluator.py script
-            result = subprocess.run([
-                sys.executable, 'mistral_transcript_evaluator.py'
-            ], capture_output=True, text=True, timeout=300)  # 5 minute timeout
+        # Check if the script exists
+        if not os.path.exists('mistral_transcript_evaluator.py'):
+            return False, "", "mistral_transcript_evaluator.py not found in current directory"
+        
+        # Run the mistral_transcript_evaluator.py script
+        result = subprocess.run([
+            sys.executable, 'mistral_transcript_evaluator.py'
+        ], capture_output=True, text=True, timeout=300, cwd=os.getcwd())  # 5 minute timeout
+        
+        if result.returncode == 0:
+            return True, result.stdout, result.stderr
+        else:
+            return False, result.stdout, result.stderr
             
-            if result.returncode == 0:
-                return True, result.stdout, result.stderr
-            else:
-                return False, result.stdout, result.stderr
-                
     except subprocess.TimeoutExpired:
         return False, "", "Evaluation timed out after 5 minutes"
-    except FileNotFoundError:
-        return False, "", "mistral_transcript_evaluator.py not found in current directory"
+    except FileNotFoundError as e:
+        return False, "", f"Python interpreter or script not found: {str(e)}"
     except Exception as e:
         return False, "", f"Error running evaluation: {str(e)}"
 
@@ -80,21 +82,30 @@ def main():
         with col1:
             # Run Mistral Evaluation button
             if st.button("🚀 Run Mistral Evaluation", type="primary", use_container_width=True):
-                success, stdout, stderr = run_mistral_evaluation()
+                # Show progress message
+                progress_placeholder = st.empty()
+                progress_placeholder.info("🔄 Starting Mistral evaluation...")
+                
+                # Show spinner and run evaluation
+                with st.spinner('Running Mistral Evaluation... Please wait...'):
+                    success, stdout, stderr = run_mistral_evaluation()
+                
+                # Clear progress message
+                progress_placeholder.empty()
                 
                 if success:
                     st.success("✅ Mistral evaluation completed successfully!")
                     if stdout:
                         st.subheader("📋 Evaluation Output:")
-                        st.text_area("Output", stdout, height=200)
+                        st.text_area("Output", stdout, height=200, key="success_output")
                 else:
                     st.error("❌ Mistral evaluation failed!")
                     if stderr:
                         st.subheader("🚨 Error Details:")
-                        st.text_area("Error", stderr, height=100)
+                        st.text_area("Error", stderr, height=100, key="error_details")
                     if stdout:
                         st.subheader("📋 Output (if any):")
-                        st.text_area("Output", stdout, height=100)
+                        st.text_area("Output", stdout, height=100, key="partial_output")
         
         with col2:
             st.info("""
@@ -108,6 +119,15 @@ def main():
             
             No need to run commands manually - just click the button!
             """)
+            
+            # Debug information
+            with st.expander("🔧 Debug Information"):
+                st.write("**Current Working Directory:**", os.getcwd())
+                st.write("**Python Executable:**", sys.executable)
+                script_exists = os.path.exists('mistral_transcript_evaluator.py')
+                st.write("**Script Exists:**", "✅ Yes" if script_exists else "❌ No")
+                if script_exists:
+                    st.write("**Script Path:**", os.path.abspath('mistral_transcript_evaluator.py'))
     
     elif page == "Evaluation Results":
         st.header("📈 Evaluation Results")
@@ -154,4 +174,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
