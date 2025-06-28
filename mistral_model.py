@@ -26,7 +26,7 @@ class MistralConfig:
     """Configuration for Mistral model."""
     model_path: str = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
     n_ctx: int = 4096  # Context window
-    n_threads: int = -1  # Use all available CPU threads
+    n_threads: int = None  # Will be set automatically based on CPU cores
     n_gpu_layers: int = 0  # CPU only
     temperature: float = 0.1  # Low temperature for consistent evaluation
     max_tokens: int = 512
@@ -196,10 +196,19 @@ COACHING_MESSAGE: [personalized feedback for the CSR]
             logger.info(f"Loading Mistral model from {self.config.model_path}")
             start_time = time.time()
             
+            # Determine optimal thread count
+            import multiprocessing
+            if self.config.n_threads is None or self.config.n_threads <= 0:
+                n_threads = max(1, multiprocessing.cpu_count() - 1)  # Leave one core free
+            else:
+                n_threads = self.config.n_threads
+            
+            logger.info(f"Using {n_threads} threads for model inference")
+            
             self.model = Llama(
                 model_path=self.config.model_path,
                 n_ctx=self.config.n_ctx,
-                n_threads=self.config.n_threads,
+                n_threads=n_threads,
                 n_gpu_layers=self.config.n_gpu_layers,
                 verbose=self.config.verbose
             )
@@ -373,4 +382,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

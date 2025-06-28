@@ -15,7 +15,7 @@ class ModelConfig:
     """Configuration for Mistral model."""
     model_path: str = "mistral-7b-instruct-v0.2.Q4_K_M.gguf"
     n_ctx: int = 4096
-    n_threads: int = -1  # Use all available CPU threads
+    n_threads: int = None  # Will be set automatically based on CPU cores
     n_gpu_layers: int = 0  # CPU only
     temperature: float = 0.1
     max_tokens: int = 512
@@ -354,4 +354,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
