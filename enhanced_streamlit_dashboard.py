@@ -34,6 +34,7 @@ from plotly.subplots import make_subplots
 # Import our evaluation components
 from evaluation_orchestrator import EvaluationOrchestrator, EvaluationConfig
 from data_processor import CallTranscriptProcessor
+from quality_analyzer import QualityMetrics
 
 # Configure Streamlit page
 st.set_page_config(
@@ -328,8 +329,8 @@ class ResultsViewer:
         unique_csrs = len(set(r.csr_id for r in results))
         
         # Quality scores
-        quality_scores = [r.quality_scores.get('quality_metrics', {}).get('overall_score', 0) 
-                         for r in results if r.quality_scores]
+        quality_scores = [r.quality_scores.get('quality_metrics', QualityMetrics()).overall_score 
+                         for r in results if r.quality_scores and r.quality_scores.get('quality_metrics')]
         avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0
         
         # DeepEval scores
@@ -386,7 +387,7 @@ class ResultsViewer:
                 'Call_ID': result.call_id,
                 'Date': result.call_date,
                 'Topic': result.topic_analysis.get('main_topic', 'N/A') if result.topic_analysis else 'N/A',
-                'Quality_Score': result.quality_scores.get('quality_metrics', {}).get('overall_score', 0) if result.quality_scores else 0,
+                'Quality_Score': result.quality_scores.get('quality_metrics', QualityMetrics()).overall_score if result.quality_scores and result.quality_scores.get('quality_metrics') else 0,
                 'DeepEval_Score': result.deepeval_scores.get('overall', {}).get('score', 0) if result.deepeval_scores else 0,
                 'Sentiment': result.sentiment_analysis.get('sentiment_label', 'N/A') if result.sentiment_analysis else 'N/A',
                 'AHT_Impact': result.aht_impact.get('aht_impact_level', 'N/A') if result.aht_impact else 'N/A'
@@ -462,7 +463,7 @@ class ResultsViewer:
         df_viz = pd.DataFrame([
             {
                 'CSR_ID': r.csr_id,
-                'Quality_Score': r.quality_scores.get('quality_metrics', {}).get('overall_score', 0) if r.quality_scores else 0,
+                'Quality_Score': r.quality_scores.get('quality_metrics', QualityMetrics()).overall_score if r.quality_scores and r.quality_scores.get('quality_metrics') else 0,
                 'DeepEval_Score': r.deepeval_scores.get('overall', {}).get('score', 0) if r.deepeval_scores else 0,
                 'Sentiment': r.sentiment_analysis.get('sentiment_label', 'Unknown') if r.sentiment_analysis else 'Unknown',
                 'Topic': r.topic_analysis.get('main_topic', 'Unknown') if r.topic_analysis else 'Unknown',

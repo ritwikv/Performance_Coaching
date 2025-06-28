@@ -15,7 +15,7 @@ import os
 from data_processor import CallTranscriptProcessor
 from mistral_model import MistralEvaluator, MistralConfig
 from rag_pipeline import RAGPipeline, RAGConfig
-from quality_analyzer import CallQualityAnalyzer
+from quality_analyzer import CallQualityAnalyzer, QualityMetrics
 from deepeval_mistral import MistralEvaluationEngine
 from sentiment_analyzer import SentimentTopicAnalyzer
 
@@ -141,7 +141,8 @@ class FeedbackGenerator:
         summary_points = []
         
         # Overall quality score
-        overall_score = quality_scores.get('quality_metrics', {}).get('overall_score', 0)
+        quality_metrics = quality_scores.get('quality_metrics')
+        overall_score = quality_metrics.overall_score if quality_metrics else 0
         if overall_score >= 8:
             feedback_parts.append(f"Outstanding quality with an overall score of {overall_score}/10.")
             summary_points.append("Excellent quality performance")
@@ -291,7 +292,9 @@ class FeedbackGenerator:
         score_count = 0
         
         if result.quality_scores and 'quality_metrics' in result.quality_scores:
-            overall_score += result.quality_scores['quality_metrics'].get('overall_score', 0)
+            quality_metrics = result.quality_scores.get('quality_metrics')
+            if quality_metrics:
+                overall_score += quality_metrics.overall_score
             score_count += 1
         
         if result.deepeval_scores and 'overall' in result.deepeval_scores:
@@ -505,7 +508,7 @@ class EvaluationOrchestrator:
                         summary_data.append({
                             'Call_ID': result.call_id,
                             'CSR_ID': result.csr_id,
-                            'Overall_Quality_Score': result.quality_scores.get('quality_metrics', {}).get('overall_score', 0) if result.quality_scores else 0,
+                            'Overall_Quality_Score': result.quality_scores.get('quality_metrics').overall_score if result.quality_scores and result.quality_scores.get('quality_metrics') else 0,
                             'DeepEval_Overall_Score': result.deepeval_scores.get('overall', {}).get('score', 0) if result.deepeval_scores else 0,
                             'Sentiment': result.sentiment_analysis.get('sentiment_label', '') if result.sentiment_analysis else '',
                             'Topic': result.topic_analysis.get('main_topic', '') if result.topic_analysis else '',
@@ -542,12 +545,19 @@ class EvaluationOrchestrator:
         
         # Flatten quality scores
         if result.quality_scores:
-            quality_metrics = result.quality_scores.get('quality_metrics', {})
-            flat.update({
-                'quality_overall_score': quality_metrics.get('overall_score', 0),
-                'quality_clarity_score': quality_metrics.get('clarity_score', 0),
-                'quality_conciseness_score': quality_metrics.get('conciseness_score', 0)
-            })
+            quality_metrics = result.quality_scores.get('quality_metrics')
+            if quality_metrics:
+                flat.update({
+                    'quality_overall_score': quality_metrics.overall_score,
+                    'quality_clarity_score': quality_metrics.clarity_score,
+                    'quality_conciseness_score': quality_metrics.conciseness_score
+                })
+            else:
+                flat.update({
+                    'quality_overall_score': 0,
+                    'quality_clarity_score': 0,
+                    'quality_conciseness_score': 0
+                })
         
         # Flatten DeepEval scores
         if result.deepeval_scores:
@@ -598,8 +608,8 @@ class EvaluationOrchestrator:
         }
         
         # Quality score statistics
-        quality_scores = [r.quality_scores.get('quality_metrics', {}).get('overall_score', 0) 
-                         for r in self.evaluation_results if r.quality_scores]
+        quality_scores = [r.quality_scores.get('quality_metrics').overall_score 
+                         for r in self.evaluation_results if r.quality_scores and r.quality_scores.get('quality_metrics')]
         if quality_scores:
             summary['quality_stats'] = {
                 'avg_score': sum(quality_scores) / len(quality_scores),
