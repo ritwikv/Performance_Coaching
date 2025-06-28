@@ -183,6 +183,11 @@ COACHING_MESSAGE: [personalized feedback for the CSR]
     
     def load_model(self) -> bool:
         """Load the Mistral model."""
+        # Check if model is already loaded
+        if self.is_loaded and self.model is not None:
+            logger.info("Mistral model is already loaded")
+            return True
+            
         if Llama is None:
             logger.error("llama-cpp-python not available. Please install it.")
             return False
@@ -198,12 +203,23 @@ COACHING_MESSAGE: [personalized feedback for the CSR]
             
             # Determine optimal thread count
             import multiprocessing
+            cpu_count = multiprocessing.cpu_count()
+            logger.info(f"System CPU count: {cpu_count}")
+            logger.info(f"Config n_threads: {self.config.n_threads}")
+            
             if self.config.n_threads is None or self.config.n_threads <= 0:
-                n_threads = max(1, multiprocessing.cpu_count() - 1)  # Leave one core free
+                n_threads = max(1, cpu_count - 1)  # Leave one core free
+                logger.info(f"Auto-calculated n_threads: {n_threads}")
             else:
                 n_threads = self.config.n_threads
+                logger.info(f"Using configured n_threads: {n_threads}")
             
-            logger.info(f"Using {n_threads} threads for model inference")
+            # Final safety check
+            if n_threads <= 0:
+                logger.warning(f"Invalid n_threads value: {n_threads}, forcing to 1")
+                n_threads = 1
+            
+            logger.info(f"Final n_threads value: {n_threads}")
             
             self.model = Llama(
                 model_path=self.config.model_path,

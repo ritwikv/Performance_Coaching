@@ -358,7 +358,8 @@ class EvaluationOrchestrator:
         # Initialize RAG pipeline
         if self.config.enable_rag:
             rag_config = RAGConfig()
-            self.rag_pipeline = RAGPipeline(rag_config, mistral_config)
+            # Pass the already-loaded Mistral evaluator to avoid loading model twice
+            self.rag_pipeline = RAGPipeline(rag_config, mistral_evaluator=self.mistral_evaluator)
             if not self.rag_pipeline.initialize():
                 logger.warning("RAG pipeline initialization failed - continuing without RAG")
                 self.config.enable_rag = False
@@ -661,4 +662,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

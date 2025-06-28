@@ -320,9 +320,15 @@ class KnowledgeGenerator:
 class RAGPipeline:
     """Complete RAG pipeline for call center knowledge base."""
     
-    def __init__(self, config: RAGConfig = None, mistral_config: MistralConfig = None):
+    def __init__(self, config: RAGConfig = None, mistral_evaluator: MistralEvaluator = None, mistral_config: MistralConfig = None):
         self.config = config or RAGConfig()
-        self.mistral_evaluator = MistralEvaluator(mistral_config)
+        
+        # Use provided evaluator or create new one
+        if mistral_evaluator is not None:
+            self.mistral_evaluator = mistral_evaluator
+        else:
+            self.mistral_evaluator = MistralEvaluator(mistral_config)
+        
         self.chunker = DocumentChunker(self.config.chunk_size, self.config.chunk_overlap)
         self.vector_store = VectorStore(self.config)
         self.knowledge_generator = KnowledgeGenerator(self.mistral_evaluator)
@@ -331,10 +337,14 @@ class RAGPipeline:
         """Initialize the RAG pipeline."""
         logger.info("Initializing RAG pipeline...")
         
-        # Load Mistral model
-        if not self.mistral_evaluator.load_model():
-            logger.error("Failed to load Mistral model")
-            return False
+        # Load Mistral model if not already loaded
+        if not self.mistral_evaluator.is_loaded:
+            logger.info("Loading Mistral model for RAG pipeline...")
+            if not self.mistral_evaluator.load_model():
+                logger.error("Failed to load Mistral model")
+                return False
+        else:
+            logger.info("Using already loaded Mistral model for RAG pipeline")
         
         # Initialize vector store
         if not self.vector_store.initialize():
