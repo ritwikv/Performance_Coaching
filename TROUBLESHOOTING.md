@@ -17,33 +17,42 @@ python fix_thread_issue.py
 python launch_basic.py
 ```
 
-### 2. Windows HuggingFace Hub Symlink Warnings
+### 2. ML Library Warnings (HuggingFace, Transformers, Torch)
 
 **Symptoms:**
+- Warning: `resume_download is deprecated and will be removed in version 1.0.0`
+- Warning: `torch.utils._pytree._register_pytree_node is deprecated`
 - Warning: `huggingface_hub cache-system uses symlinks by default...`
-- Warning: `your machine does not support them in C:\Users\...\models--sentence-transformers--all-MiniLM-L6-v2`
-- Streamlit loads but shows warnings when loading all-MiniLM-L6-v2 model
+- Multiple warnings during sentence-transformers model loading
 
 **Solutions:**
 
-#### Quick Fix - Environment Variable:
+#### Quick Fix - Use Clean Launcher:
 ```bash
-# Set environment variable to disable warning
-set HF_HUB_DISABLE_SYMLINKS_WARNING=1
+# Launch with comprehensive warning suppression
+python launch_streamlit_clean.py
 
-# Or run the fix script
-python fix_windows_compatibility.py
+# Or use the warning suppression module
+python suppress_warnings.py
 ```
 
-#### Permanent Fix - Enable Developer Mode:
-1. Open Windows Settings (Windows + I)
-2. Go to Update & Security → For developers
-3. Select "Developer mode"
-4. Restart your computer
+#### Manual Environment Setup:
+```bash
+# Set multiple environment variables
+set HF_HUB_DISABLE_SYMLINKS_WARNING=1
+set HF_HUB_DISABLE_TELEMETRY=1
+set TRANSFORMERS_VERBOSITY=error
+set TOKENIZERS_PARALLELISM=false
+set PYTHONWARNINGS=ignore::FutureWarning,ignore::UserWarning
 
-#### Alternative - Run as Administrator:
-- Right-click Command Prompt → "Run as administrator"
-- Launch Streamlit from the admin prompt
+# Then launch Streamlit
+streamlit run enhanced_streamlit_dashboard.py
+```
+
+#### For Windows Symlink Issues Specifically:
+1. Enable Developer Mode: Settings → Update & Security → For developers
+2. Or run as Administrator
+3. Or use the environment variable approach above
 
 ### 3. Streamlit Crashes During Model Loading
 

@@ -7,6 +7,7 @@ Creates knowledge documents from transcripts and provides expert-level answers
 import os
 import json
 import logging
+import warnings
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 import pandas as pd
@@ -14,9 +15,17 @@ import numpy as np
 from datetime import datetime
 import pickle
 
-# Fix Windows symlink issue for HuggingFace Hub
-if os.name == 'nt':  # Windows
-    os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
+# Comprehensive warning suppression for ML libraries
+os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
+os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
+os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
+# Filter specific warnings before importing ML libraries
+warnings.filterwarnings('ignore', category=FutureWarning, module='huggingface_hub')
+warnings.filterwarnings('ignore', category=UserWarning, module='transformers')
+warnings.filterwarnings('ignore', category=UserWarning, message='.*torch.utils._pytree.*')
+warnings.filterwarnings('ignore', category=FutureWarning, message='.*resume_download.*')
 
 try:
     from sentence_transformers import SentenceTransformer

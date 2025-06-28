@@ -4,20 +4,32 @@ Enhanced Streamlit Dashboard for Call Center Transcript Evaluation
 Complete frontend with 'Run Mistral Evaluation' functionality and feedback display
 """
 
+# Apply warning suppression before importing ML libraries
+import os
+import warnings
+
+# Comprehensive warning suppression for ML libraries
+os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
+os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
+os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+os.environ['PYTHONWARNINGS'] = 'ignore::FutureWarning,ignore::UserWarning'
+
+# Filter specific warnings
+warnings.filterwarnings('ignore', category=FutureWarning, module='huggingface_hub')
+warnings.filterwarnings('ignore', category=UserWarning, module='transformers')
+warnings.filterwarnings('ignore', category=UserWarning, message='.*torch.utils._pytree.*')
+warnings.filterwarnings('ignore', category=FutureWarning, message='.*resume_download.*')
+
 import streamlit as st
 import pandas as pd
 import json
-import os
 import time
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-
-# Fix Windows symlink issue for HuggingFace Hub
-if os.name == 'nt':  # Windows
-    os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 
 # Import our evaluation components
 from evaluation_orchestrator import EvaluationOrchestrator, EvaluationConfig
