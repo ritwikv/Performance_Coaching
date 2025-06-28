@@ -14,6 +14,10 @@ import numpy as np
 from datetime import datetime
 import pickle
 
+# Fix Windows symlink issue for HuggingFace Hub
+if os.name == 'nt':  # Windows
+    os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
+
 try:
     from sentence_transformers import SentenceTransformer
     import chromadb
@@ -481,4 +485,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

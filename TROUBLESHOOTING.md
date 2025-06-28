@@ -17,7 +17,35 @@ python fix_thread_issue.py
 python launch_basic.py
 ```
 
-### 2. Streamlit Crashes During Model Loading
+### 2. Windows HuggingFace Hub Symlink Warnings
+
+**Symptoms:**
+- Warning: `huggingface_hub cache-system uses symlinks by default...`
+- Warning: `your machine does not support them in C:\Users\...\models--sentence-transformers--all-MiniLM-L6-v2`
+- Streamlit loads but shows warnings when loading all-MiniLM-L6-v2 model
+
+**Solutions:**
+
+#### Quick Fix - Environment Variable:
+```bash
+# Set environment variable to disable warning
+set HF_HUB_DISABLE_SYMLINKS_WARNING=1
+
+# Or run the fix script
+python fix_windows_compatibility.py
+```
+
+#### Permanent Fix - Enable Developer Mode:
+1. Open Windows Settings (Windows + I)
+2. Go to Update & Security → For developers
+3. Select "Developer mode"
+4. Restart your computer
+
+#### Alternative - Run as Administrator:
+- Right-click Command Prompt → "Run as administrator"
+- Launch Streamlit from the admin prompt
+
+### 3. Streamlit Crashes During Model Loading
 
 **Symptoms:**
 - Streamlit loads but crashes when downloading/loading sentence-transformers
@@ -217,4 +245,3 @@ If you're still having issues:
 4. Specify which mode you're trying to use
 
 The basic mode should work on most systems and provides core functionality for transcript analysis without the heavy ML dependencies.
-

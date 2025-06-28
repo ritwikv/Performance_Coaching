@@ -15,6 +15,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# Fix Windows symlink issue for HuggingFace Hub
+if os.name == 'nt':  # Windows
+    os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
+
 # Import our evaluation components
 from evaluation_orchestrator import EvaluationOrchestrator, EvaluationConfig
 from data_processor import CallTranscriptProcessor
@@ -580,4 +584,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
