@@ -505,10 +505,17 @@ class EvaluationOrchestrator:
                     # Summary sheet
                     summary_data = []
                     for result in self.evaluation_results:
+                        # Get quality score safely
+                        quality_score = 0
+                        if result.quality_scores and result.quality_scores.get('quality_metrics'):
+                            quality_metrics = result.quality_scores.get('quality_metrics')
+                            if hasattr(quality_metrics, 'overall_score'):
+                                quality_score = quality_metrics.overall_score
+                        
                         summary_data.append({
                             'Call_ID': result.call_id,
                             'CSR_ID': result.csr_id,
-                            'Overall_Quality_Score': result.quality_scores.get('quality_metrics').overall_score if result.quality_scores and result.quality_scores.get('quality_metrics') else 0,
+                            'Overall_Quality_Score': quality_score,
                             'DeepEval_Overall_Score': result.deepeval_scores.get('overall', {}).get('score', 0) if result.deepeval_scores else 0,
                             'Sentiment': result.sentiment_analysis.get('sentiment_label', '') if result.sentiment_analysis else '',
                             'Topic': result.topic_analysis.get('main_topic', '') if result.topic_analysis else '',
@@ -546,11 +553,11 @@ class EvaluationOrchestrator:
         # Flatten quality scores
         if result.quality_scores:
             quality_metrics = result.quality_scores.get('quality_metrics')
-            if quality_metrics:
+            if quality_metrics and hasattr(quality_metrics, 'overall_score'):
                 flat.update({
-                    'quality_overall_score': quality_metrics.overall_score,
-                    'quality_clarity_score': quality_metrics.clarity_score,
-                    'quality_conciseness_score': quality_metrics.conciseness_score
+                    'quality_overall_score': getattr(quality_metrics, 'overall_score', 0),
+                    'quality_clarity_score': getattr(quality_metrics, 'clarity_score', 0),
+                    'quality_conciseness_score': getattr(quality_metrics, 'conciseness_score', 0)
                 })
             else:
                 flat.update({
@@ -608,8 +615,12 @@ class EvaluationOrchestrator:
         }
         
         # Quality score statistics
-        quality_scores = [r.quality_scores.get('quality_metrics').overall_score 
-                         for r in self.evaluation_results if r.quality_scores and r.quality_scores.get('quality_metrics')]
+        quality_scores = []
+        for r in self.evaluation_results:
+            if r.quality_scores and r.quality_scores.get('quality_metrics'):
+                quality_metrics = r.quality_scores.get('quality_metrics')
+                if hasattr(quality_metrics, 'overall_score'):
+                    quality_scores.append(quality_metrics.overall_score)
         if quality_scores:
             summary['quality_stats'] = {
                 'avg_score': sum(quality_scores) / len(quality_scores),

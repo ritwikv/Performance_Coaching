@@ -329,8 +329,12 @@ class ResultsViewer:
         unique_csrs = len(set(r.csr_id for r in results))
         
         # Quality scores
-        quality_scores = [r.quality_scores.get('quality_metrics', QualityMetrics()).overall_score 
-                         for r in results if r.quality_scores and r.quality_scores.get('quality_metrics')]
+        quality_scores = []
+        for r in results:
+            if r.quality_scores and r.quality_scores.get('quality_metrics'):
+                quality_metrics = r.quality_scores.get('quality_metrics')
+                if hasattr(quality_metrics, 'overall_score'):
+                    quality_scores.append(quality_metrics.overall_score)
         avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0
         
         # DeepEval scores
@@ -387,7 +391,7 @@ class ResultsViewer:
                 'Call_ID': result.call_id,
                 'Date': result.call_date,
                 'Topic': result.topic_analysis.get('main_topic', 'N/A') if result.topic_analysis else 'N/A',
-                'Quality_Score': result.quality_scores.get('quality_metrics', QualityMetrics()).overall_score if result.quality_scores and result.quality_scores.get('quality_metrics') else 0,
+                'Quality_Score': _get_quality_score(result),
                 'DeepEval_Score': result.deepeval_scores.get('overall', {}).get('score', 0) if result.deepeval_scores else 0,
                 'Sentiment': result.sentiment_analysis.get('sentiment_label', 'N/A') if result.sentiment_analysis else 'N/A',
                 'AHT_Impact': result.aht_impact.get('aht_impact_level', 'N/A') if result.aht_impact else 'N/A'
@@ -463,7 +467,7 @@ class ResultsViewer:
         df_viz = pd.DataFrame([
             {
                 'CSR_ID': r.csr_id,
-                'Quality_Score': r.quality_scores.get('quality_metrics', QualityMetrics()).overall_score if r.quality_scores and r.quality_scores.get('quality_metrics') else 0,
+                'Quality_Score': _get_quality_score(r),
                 'DeepEval_Score': r.deepeval_scores.get('overall', {}).get('score', 0) if r.deepeval_scores else 0,
                 'Sentiment': r.sentiment_analysis.get('sentiment_label', 'Unknown') if r.sentiment_analysis else 'Unknown',
                 'Topic': r.topic_analysis.get('main_topic', 'Unknown') if r.topic_analysis else 'Unknown',
@@ -594,6 +598,14 @@ def main():
         with col2:
             st.write("**RAG Enabled:**", "✅" if config.enable_rag else "❌")
             st.write("**DeepEval Enabled:**", "✅" if config.enable_deepeval else "❌")
+
+def _get_quality_score(result) -> float:
+    """Safely extract quality score from evaluation result."""
+    if result.quality_scores and result.quality_scores.get('quality_metrics'):
+        quality_metrics = result.quality_scores.get('quality_metrics')
+        if hasattr(quality_metrics, 'overall_score'):
+            return quality_metrics.overall_score
+    return 0.0
 
 if __name__ == "__main__":
     main()
