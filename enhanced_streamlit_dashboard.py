@@ -261,7 +261,15 @@ class EvaluationRunner:
             progress_bar.progress(95)
             
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f"evaluation_results_{timestamp}.{config.output_format}"
+            
+            # Map format to file extension
+            format_to_ext = {
+                "json": "json",
+                "csv": "csv", 
+                "excel": "xlsx"
+            }
+            file_ext = format_to_ext.get(config.output_format, config.output_format)
+            output_file = f"evaluation_results_{timestamp}.{file_ext}"
             
             if orchestrator.save_results(output_file, config.output_format):
                 st.session_state.evaluation_results = all_results

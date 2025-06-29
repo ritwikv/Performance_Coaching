@@ -184,7 +184,7 @@ class CallTranscriptProcessor:
             if format.lower() == 'csv':
                 df.to_csv(output_path, index=False)
             elif format.lower() == 'excel':
-                df.to_excel(output_path, index=False)
+                df.to_excel(output_path, index=False, engine='openpyxl')
             elif format.lower() == 'json':
                 df.to_json(output_path, orient='records', indent=2)
             else:
@@ -231,4 +231,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -482,6 +482,7 @@ class EvaluationOrchestrator:
             return False
         
         format = format or self.config.output_format
+        logger.info(f"Saving results with format: {format} (type: {type(format)})")
         
         try:
             if format.lower() == 'json':
