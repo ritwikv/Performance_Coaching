@@ -64,6 +64,7 @@ class EvaluationResult:
     # Coaching feedback
     coaching_feedback: str = ""
     concise_summary: str = ""
+    transcript_summary: str = ""  # Holistic summary for entire transcript
     
     # Metadata
     evaluation_timestamp: str = ""
@@ -416,7 +417,134 @@ class EvaluationOrchestrator:
             results.append(result)
         
         self.evaluation_results.extend(results)
+        
+        # Generate holistic transcript summary
+        if results:
+            transcript_summary = self._generate_transcript_summary(results)
+            # Add transcript summary to the first result for easy access
+            if results:
+                results[0].transcript_summary = transcript_summary
+        
         return results
+    
+    def _generate_transcript_summary(self, results: List[EvaluationResult]) -> str:
+        """Generate a holistic 200-word summary for the entire transcript conversation."""
+        if not results:
+            return "No conversation data available for summary."
+        
+        # Extract key information from all Q&A pairs
+        call_info = results[0]  # Basic call info from first result
+        total_pairs = len(results)
+        
+        # Aggregate scores and feedback
+        quality_scores = []
+        deepeval_scores = []
+        sentiment_labels = []
+        topics = []
+        aht_impacts = []
+        key_issues = []
+        
+        for result in results:
+            # Collect quality scores
+            if result.quality_scores and result.quality_scores.get('quality_metrics'):
+                quality_metrics = result.quality_scores.get('quality_metrics')
+                if hasattr(quality_metrics, 'overall_score'):
+                    quality_scores.append(quality_metrics.overall_score)
+            
+            # Collect DeepEval scores
+            if result.deepeval_scores and result.deepeval_scores.get('overall', {}).get('score'):
+                deepeval_scores.append(result.deepeval_scores['overall']['score'])
+            
+            # Collect sentiment
+            if result.sentiment_analysis and result.sentiment_analysis.get('sentiment_label'):
+                sentiment_labels.append(result.sentiment_analysis['sentiment_label'])
+            
+            # Collect topics
+            if result.topic_analysis and result.topic_analysis.get('main_topic'):
+                topics.append(result.topic_analysis['main_topic'])
+            
+            # Collect AHT impacts
+            if result.aht_impact and result.aht_impact.get('aht_impact_level'):
+                aht_impacts.append(result.aht_impact['aht_impact_level'])
+            
+            # Collect key issues from comprehensive feedback
+            if result.comprehensive_feedback:
+                # Extract key issues (simplified approach)
+                if 'repetition' in result.comprehensive_feedback.lower():
+                    key_issues.append('repetition')
+                if 'hold' in result.comprehensive_feedback.lower() or 'wait' in result.comprehensive_feedback.lower():
+                    key_issues.append('hold_requests')
+                if 'transfer' in result.comprehensive_feedback.lower():
+                    key_issues.append('call_transfer')
+                if 'long sentences' in result.comprehensive_feedback.lower():
+                    key_issues.append('verbosity')
+        
+        # Calculate averages
+        avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0
+        avg_deepeval = sum(deepeval_scores) / len(deepeval_scores) if deepeval_scores else 0
+        
+        # Determine dominant sentiment
+        dominant_sentiment = max(set(sentiment_labels), key=sentiment_labels.count) if sentiment_labels else 'Neutral'
+        
+        # Determine main topics
+        main_topics = list(set(topics))[:3]  # Top 3 unique topics
+        
+        # Determine AHT impact
+        high_aht_count = sum(1 for impact in aht_impacts if impact in ['High', 'Medium'])
+        aht_concern = high_aht_count > len(aht_impacts) * 0.5 if aht_impacts else False
+        
+        # Build summary
+        summary_parts = []
+        
+        # Header
+        summary_parts.append(f"Transcript Summary for {call_info.csr_id} ({call_info.call_date}):")
+        
+        # Overall performance
+        if avg_quality >= 8 or avg_deepeval >= 0.8:
+            summary_parts.append(f"Excellent performance across {total_pairs} interactions.")
+        elif avg_quality >= 6 or avg_deepeval >= 0.6:
+            summary_parts.append(f"Good performance with improvement opportunities across {total_pairs} interactions.")
+        else:
+            summary_parts.append(f"Performance requires focused improvement across {total_pairs} interactions.")
+        
+        # Key topics handled
+        if main_topics:
+            topics_str = ", ".join(main_topics[:2])
+            summary_parts.append(f"Successfully addressed {topics_str} inquiries.")
+        
+        # Communication style
+        summary_parts.append(f"Overall communication style: {dominant_sentiment.lower()} sentiment.")
+        
+        # Key issues identified
+        unique_issues = list(set(key_issues))
+        if unique_issues:
+            if len(unique_issues) == 1:
+                summary_parts.append(f"Primary area for improvement: {unique_issues[0].replace('_', ' ')}.")
+            else:
+                issues_str = ", ".join(unique_issues[:2]).replace('_', ' ')
+                summary_parts.append(f"Key improvement areas: {issues_str}.")
+        
+        # AHT impact
+        if aht_concern:
+            summary_parts.append("AHT optimization needed due to efficiency concerns.")
+        else:
+            summary_parts.append("AHT performance within acceptable range.")
+        
+        # Coaching recommendation
+        if avg_quality < 6 or avg_deepeval < 0.6:
+            summary_parts.append("Recommend focused coaching on communication clarity and customer service fundamentals.")
+        elif unique_issues:
+            summary_parts.append(f"Recommend targeted coaching on {unique_issues[0].replace('_', ' ')} management.")
+        else:
+            summary_parts.append("Continue current performance level with minor refinements.")
+        
+        # Join and limit to ~200 words
+        full_summary = " ".join(summary_parts)
+        words = full_summary.split()
+        if len(words) > 200:
+            full_summary = " ".join(words[:200]) + "..."
+        
+        return full_summary
     
     def _evaluate_single_conversation(self, row: pd.Series) -> EvaluationResult:
         """Evaluate a single conversation."""
@@ -484,6 +612,13 @@ class EvaluationOrchestrator:
         format = format or self.config.output_format
         logger.info(f"Saving results with format: {format} (type: {type(format)})")
         
+        # Debug: Check if transcript summary exists
+        if self.evaluation_results:
+            first_result = self.evaluation_results[0]
+            logger.info(f"First result has transcript_summary: {hasattr(first_result, 'transcript_summary')}")
+            if hasattr(first_result, 'transcript_summary'):
+                logger.info(f"Transcript summary length: {len(first_result.transcript_summary)} characters")
+        
         try:
             if format.lower() == 'json':
                 results_dict = [asdict(result) for result in self.evaluation_results]
@@ -521,7 +656,8 @@ class EvaluationOrchestrator:
                             'Sentiment': result.sentiment_analysis.get('sentiment_label', '') if result.sentiment_analysis else '',
                             'Topic': result.topic_analysis.get('main_topic', '') if result.topic_analysis else '',
                             'AHT_Impact': result.aht_impact.get('aht_impact_level', '') if result.aht_impact else '',
-                            'Concise_Summary': result.concise_summary
+                            'Concise_Summary': result.concise_summary,
+                            'Transcript_Summary': result.transcript_summary
                         })
                     
                     pd.DataFrame(summary_data).to_excel(writer, sheet_name='Summary', index=False)
@@ -548,6 +684,7 @@ class EvaluationOrchestrator:
             'answer': result.answer,
             'expert_answer': result.expert_answer,
             'concise_summary': result.concise_summary,
+            'transcript_summary': result.transcript_summary,
             'processing_time_seconds': result.processing_time_seconds
         }
         
@@ -672,6 +809,10 @@ def main():
         print(f"Question: {first_result.question[:100]}...")
         print(f"Answer: {first_result.answer[:100]}...")
         print(f"\nConcise Summary:\n{first_result.concise_summary}")
+        
+        # Show transcript summary if available
+        if hasattr(first_result, 'transcript_summary') and first_result.transcript_summary:
+            print(f"\n📋 Transcript Summary (Entire Conversation):\n{first_result.transcript_summary}")
         
         # Save results
         orchestrator.save_results("evaluation_results.json", "json")
