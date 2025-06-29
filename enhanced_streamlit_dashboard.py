@@ -467,7 +467,7 @@ class ResultsViewer:
                         st.info(result.concise_summary)
                         
                         # Display transcript summary (only for first result to avoid repetition)
-                        if idx == 0 and hasattr(result, 'transcript_summary') and result.transcript_summary:
+                        if i == 0 and hasattr(result, 'transcript_summary') and result.transcript_summary:
                             st.write("**📋 Transcript Summary (Entire Conversation):**")
                             st.success(result.transcript_summary)
     
