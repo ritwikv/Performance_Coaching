@@ -63,6 +63,7 @@ class EvaluationResult:
     
     # Coaching feedback
     coaching_feedback: str = ""
+    comprehensive_feedback: str = ""  # Detailed comprehensive feedback
     concise_summary: str = ""
     transcript_summary: str = ""  # Holistic summary for entire transcript
     
@@ -595,6 +596,7 @@ class EvaluationOrchestrator:
         # Generate comprehensive feedback
         comprehensive_feedback, concise_summary = self.feedback_generator.generate_comprehensive_feedback(result)
         result.coaching_feedback = comprehensive_feedback
+        result.comprehensive_feedback = comprehensive_feedback  # Store in both fields for compatibility
         result.concise_summary = concise_summary
         
         # Calculate processing time
@@ -683,6 +685,7 @@ class EvaluationOrchestrator:
             'question': result.question,
             'answer': result.answer,
             'expert_answer': result.expert_answer,
+            'comprehensive_feedback': result.comprehensive_feedback,
             'concise_summary': result.concise_summary,
             'transcript_summary': result.transcript_summary,
             'processing_time_seconds': result.processing_time_seconds
