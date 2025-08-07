@@ -225,7 +225,7 @@ def save_dataframe(df: pd.DataFrame, output_prefix: str = "call_transcript_data"
         
         # Save to Excel
         excel_filename = f"{output_prefix}.xlsx"
-        df.to_excel(excel_filename, index=False)
+        df.to_excel(excel_filename, index=False, engine='openpyxl')
         print(f"✅ Data saved to: {excel_filename}")
         
         # Save summary statistics
